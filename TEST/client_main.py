@@ -7,7 +7,6 @@ import qrc_rc
 import cv2
 import numpy
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QDateTime
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (QMessageBox, QApplication)
 from widget import Ui_Widget
@@ -49,14 +48,12 @@ class MyMainClass(QtWidgets.QDialog,Ui_Widget):
         super(MyMainClass, self).__init__(parent)
 
         self.setupUi(self)
-
+        self.setWindowTitle('监控窗口')
         self.resolution = [640,480]
         # self.addr_port = ("10.205.253.126",8880)#老师树莓派
         self.addr_port = ("192.168.43.170", 8880)#自己树莓派
         # self.addr_port = ("10.205.253.217", 8880)#电脑摄像头
         self.src = 888 +15
-        self.interval = 0
-        self.img_fps = 100
 
         self.button_exit.clicked.connect(self.quit)
         self.button_open.clicked.connect(self.button2_clicked)
@@ -77,15 +74,7 @@ class MyMainClass(QtWidgets.QDialog,Ui_Widget):
         print('ip',self.serverip.text())
         self.Socket_Connect()
         print('port',self.addr_port[1])
-        self.Get_Data(self.interval)
-
-
-
-    def showTime(self):
-        time = QDateTime.currentDateTime()
-
-        timeDisplay = time.toString("yyyy-MM-dd hh:mm:ss dddd")
-        self.label1.setText(timeDisplay)
+        self.Get_Data()
 
     def Set_socket(self):
         self.client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -100,7 +89,7 @@ class MyMainClass(QtWidgets.QDialog,Ui_Widget):
 
         print("IP is %s:%d" % (self.addr_port[0], self.addr_port[1]))
 
-    def Get_Data(self,interval):
+    def Get_Data(self):
         print('Get_Data')
         self.socket_client()
         self.showThread = threading.Thread(target=self.socket_client)
@@ -123,7 +112,7 @@ class MyMainClass(QtWidgets.QDialog,Ui_Widget):
                     self.avg = None
                     while(buf_size):
                         print('buf_size:',buf_size)
-                        temp_buf = self.client.recv(buf_size)#接收图片数据长度的string类型字符串
+                        temp_buf = self.client.recv(buf_size)#接收图片数据长度的bytes字符串数据
                         print('temp_buf:',len(temp_buf))
                         buf_size -= len(temp_buf)#减后为零，退出循环
                         self.buf += temp_buf
